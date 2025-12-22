@@ -32,7 +32,7 @@ const Navigation = () => {
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
         <motion.div 
-          className="text-2xl font-display font-bold tracking-widest text-jupiter-orange"
+          className="text-2xl font-accent font-bold tracking-wider text-jupiter-orange"
           whileHover={{ scale: 1.05, textShadow: "0 0 20px rgba(255,107,53,0.8)" }}
           transition={{ duration: 0.3 }}
         >
@@ -93,7 +93,7 @@ const Navigation = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                   whileTap={{ scale: 0.95 }}
-                  className="text-lg font-display text-center text-jupiter-cream py-2 hover:text-jupiter-orange transition-colors"
+                  className="text-lg font-display font-medium text-center text-jupiter-cream py-2 hover:text-jupiter-orange transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.name}

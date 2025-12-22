@@ -248,7 +248,7 @@ const MoonGallery = () => {
           <div className="flex-1 w-full">
             <h2 
               ref={titleRef}
-              className="text-4xl md:text-5xl font-display font-bold text-white mb-8"
+              className="text-4xl md:text-5xl font-display font-extrabold text-white mb-8 tracking-tight leading-extra-tight"
             >
               The Galilean Moons
             </h2>
@@ -290,7 +290,7 @@ const MoonGallery = () => {
                   <div className="absolute -inset-1 bg-gradient-to-r from-jupiter-orange/10 to-purple-600/10 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
                   
                   <div className="flex justify-between items-center mb-2 relative z-10">
-                    <h3 className={`text-xl font-display font-bold transition-colors duration-300 ${activeMoon.id === moon.id ? 'text-jupiter-orange' : 'text-white group-hover:text-jupiter-gold'}`}>
+                    <h3 className={`text-xl font-display font-bold transition-colors duration-300 tracking-tight ${activeMoon.id === moon.id ? 'text-jupiter-orange' : 'text-white group-hover:text-jupiter-gold'}`}>
                       {moon.name}
                     </h3>
                     {activeMoon.id === moon.id && (
@@ -315,13 +315,13 @@ const MoonGallery = () => {
                   {activeMoon.id === moon.id && (
                     <div className="relative z-10 overflow-hidden">
                       <p className="text-gray-300 mb-4 leading-relaxed">{moon.description}</p>
-                      <div className="flex gap-6 text-xs text-gray-500 font-mono uppercase tracking-wider">
+                      <div className="flex gap-6 text-xs text-gray-500 font-hero uppercase tracking-wider">
                         <div className="group/stat">
-                          <span className="block text-jupiter-gold font-bold mb-1">Radius</span>
+                          <span className="block text-jupiter-gold font-bold mb-1 tracking-wide">Radius</span>
                           <span className="group-hover/stat:text-white transition-colors">{moon.radius}</span>
                         </div>
                         <div className="group/stat">
-                          <span className="block text-jupiter-gold font-bold mb-1">Orbital Dist.</span>
+                          <span className="block text-jupiter-gold font-bold mb-1 tracking-wide">Orbital Dist.</span>
                           <span className="group-hover/stat:text-white transition-colors">{moon.distance}</span>
                         </div>
                       </div>

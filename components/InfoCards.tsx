@@ -162,7 +162,7 @@ const InfoCards = () => {
       <div ref={headerRef} className="mb-16 text-center relative z-10">
         <h2 
           ref={titleRef}
-          className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+          className="text-4xl md:text-5xl font-display font-extrabold text-white mb-4 tracking-tight leading-extra-tight"
         >
           Planetary Data
         </h2>

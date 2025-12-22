@@ -114,7 +114,7 @@ const Timeline = () => {
       <div ref={headerRef} className="mb-20 text-center">
         <h2 
           ref={titleRef}
-          className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+          className="text-4xl md:text-5xl font-display font-extrabold text-white mb-4 tracking-tight leading-extra-tight"
         >
           Exploration History
         </h2>
@@ -166,11 +166,11 @@ const Timeline = () => {
                 <div className={`card text-left ${index % 2 === 0 ? 'md:text-left' : 'md:text-right'} p-6 bg-[#152538]/40 backdrop-blur-sm rounded-lg border border-white/10 hover:border-jupiter-orange/50 transition-all relative overflow-hidden group`}>
                   <div className="absolute inset-0 bg-gradient-to-br from-jupiter-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   
-                  <span className="text-jupiter-orange font-mono text-xl font-bold block mb-2 relative z-10">
+                  <span className="text-jupiter-orange font-hero text-xl font-bold block mb-2 relative z-10 tracking-wide">
                     {mission.year}
                   </span>
                   
-                  <h3 className="text-2xl text-white font-bold mb-3 relative z-10">
+                  <h3 className="text-2xl text-white font-display font-bold mb-3 relative z-10 tracking-tight">
                     {mission.name}
                   </h3>
                   

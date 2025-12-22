@@ -238,13 +238,13 @@ const MoonSections = () => {
                 <div className="flex-1 space-y-6">
                   <div>
                     <span 
-                      className="text-sm uppercase tracking-widest mb-2 block"
+                      className="text-xs uppercase tracking-ultra-wide mb-2 block font-hero font-bold"
                       style={{ color: colors.primary }}
                     >
                       Moon {index + 1} of 4
                     </span>
                     <h2 
-                      className="moon-title text-5xl md:text-6xl font-bold tracking-tight"
+                      className="moon-title text-5xl md:text-6xl font-display font-extrabold tracking-tighter leading-extra-tight"
                       style={{ 
                         color: colors.primary,
                         textShadow: `0 0 30px ${colors.glow}`
@@ -254,16 +254,16 @@ const MoonSections = () => {
                     </h2>
                   </div>
 
-                  <p className="moon-description text-lg md:text-xl text-gray-300 leading-relaxed">
+                  <p className="moon-description text-base md:text-lg text-gray-300 leading-relaxed font-sans font-light tracking-wide">
                     {moon.description}
                   </p>
 
                   <div className="moon-stats grid grid-cols-2 gap-4">
                     <div className="stat-item p-4 rounded-xl bg-white/5 backdrop-blur-sm 
                                   border border-white/10 hover:bg-white/10 transition-colors">
-                      <span className="text-sm text-gray-400 block mb-1">Radius</span>
+                      <span className="text-xs text-gray-400 block mb-1 font-hero uppercase tracking-wider">Radius</span>
                       <span 
-                        className="text-xl md:text-2xl font-bold"
+                        className="text-xl md:text-2xl font-display font-bold tracking-tight"
                         style={{ color: colors.primary }}
                       >
                         {moon.radius}
@@ -271,9 +271,9 @@ const MoonSections = () => {
                     </div>
                     <div className="stat-item p-4 rounded-xl bg-white/5 backdrop-blur-sm 
                                   border border-white/10 hover:bg-white/10 transition-colors">
-                      <span className="text-sm text-gray-400 block mb-1">Distance from Jupiter</span>
+                      <span className="text-xs text-gray-400 block mb-1 font-hero uppercase tracking-wider">Distance from Jupiter</span>
                       <span 
-                        className="text-xl md:text-2xl font-bold"
+                        className="text-xl md:text-2xl font-display font-bold tracking-tight"
                         style={{ color: colors.primary }}
                       >
                         {moon.distance}

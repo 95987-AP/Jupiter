@@ -1,5 +1,46 @@
 /* Global Styles and Animations */
 
+/* Typography Best Practices */
+body {
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Improved readability for body text */
+p {
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: 0.015em;
+}
+
+/* Display headings - enhanced spacing */
+h1, h2, h3 {
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+/* Mono/technical text */
+.font-hero {
+  font-feature-settings: "zero" 1, "ss01" 1;
+  letter-spacing: 0.05em;
+}
+
 /* Smooth Scrolling */
 html {
   scroll-behavior: smooth;

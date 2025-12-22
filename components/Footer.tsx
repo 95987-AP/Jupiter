@@ -20,7 +20,7 @@ const Footer = () => {
           transition={{ duration: 0.6 }}
         >
           <motion.span 
-            className="text-xl font-display font-bold text-white tracking-widest"
+            className="text-xl font-accent font-bold text-white tracking-wider"
             whileHover={{ scale: 1.05, color: '#FF6B35' }}
           >
             JUPITER

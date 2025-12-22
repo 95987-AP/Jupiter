@@ -127,10 +127,10 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadComplete }) => {
       </div>
 
       {/* Loading text */}
-      <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-wide">
+      <h2 className="text-2xl md:text-3xl font-accent font-bold text-white mb-2 tracking-wider">
         JUPITER EXPERIENCE
       </h2>
-      <p className="text-jupiter-orange mb-8 text-lg animate-pulse">
+      <p className="text-jupiter-orange mb-8 text-base font-sans font-medium animate-pulse tracking-wide">
         {loadingText}
       </p>
 

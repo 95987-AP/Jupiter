@@ -7,14 +7,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Exo+2:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Audiowide&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              display: ['Orbitron', 'sans-serif'],
+              sans: ['Rajdhani', 'system-ui', 'sans-serif'],
+              display: ['Exo 2', 'sans-serif'],
+              hero: ['Space Mono', 'monospace'],
+              accent: ['Audiowide', 'cursive'],
+            },
+            letterSpacing: {
+              tightest: '-.075em',
+              tighter: '-.05em',
+              wide: '.025em',
+              wider: '.05em',
+              widest: '.25em',
+              'ultra-wide': '.5em',
+            },
+            lineHeight: {
+              'extra-tight': '1.1',
+              'relaxed': '1.75',
             },
             colors: {
               space: {

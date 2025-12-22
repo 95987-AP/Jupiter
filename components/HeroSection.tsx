@@ -178,14 +178,14 @@ const HeroSection = () => {
       <div ref={contentRef} className="pointer-events-auto relative">
         <span 
           ref={subtitleRef}
-          className="text-jupiter-gold tracking-[0.4em] uppercase text-sm md:text-base font-semibold mb-6 block animate-pulse-slow"
+          className="text-jupiter-gold tracking-ultra-wide uppercase text-xs md:text-sm font-hero font-bold mb-6 block animate-pulse-slow"
         >
           The Solar System's Giant
         </span>
         
         <h1 
           ref={titleRef}
-          className="text-6xl md:text-8xl lg:text-9xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-jupiter-cream to-jupiter-gold/70 mb-8 drop-shadow-2xl relative"
+          className="text-6xl md:text-8xl lg:text-9xl font-hero font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-jupiter-cream to-jupiter-gold/70 mb-8 drop-shadow-2xl relative leading-extra-tight tracking-tighter"
         >
           <span className="absolute inset-0 text-transparent bg-clip-text bg-gradient-to-b from-jupiter-orange/50 to-transparent blur-xl">
             JUPITER
@@ -195,7 +195,7 @@ const HeroSection = () => {
         
         <p 
           ref={descRef}
-          className="max-w-xl mx-auto text-jupiter-cream/80 text-lg md:text-xl leading-relaxed mb-12"
+          className="max-w-xl mx-auto text-jupiter-cream/90 text-base md:text-lg font-sans font-light leading-relaxed tracking-wide mb-12"
         >
           Explore the king of planets. A gas giant with a mass one-thousandth that of the Sun, but two-and-a-half times that of all the other planets in the Solar System combined.
         </p>
@@ -203,7 +203,7 @@ const HeroSection = () => {
         <a 
           ref={ctaRef}
           href="#facts"
-          className="group inline-block px-10 py-4 border-2 border-jupiter-orange text-jupiter-orange hover:bg-jupiter-orange hover:text-white transition-all duration-500 rounded-sm font-display tracking-widest uppercase text-sm relative overflow-hidden"
+          className="group inline-block px-10 py-4 border-2 border-jupiter-orange text-jupiter-orange hover:bg-jupiter-orange hover:text-white transition-all duration-500 rounded-sm font-display font-semibold tracking-widest uppercase text-sm relative overflow-hidden"
           onMouseEnter={(e) => {
             gsap.to(e.currentTarget, { scale: 1.08, duration: 0.3, ease: 'back.out(1.7)' });
             gsap.to(e.currentTarget.querySelector('.btn-glow'), { opacity: 1, scale: 1.5, duration: 0.4 });
