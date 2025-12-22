@@ -360,8 +360,15 @@ const GravitationalLensing = ({ scrollY = 0 }) => {
     const scale = 1 + Math.sin(time * 2) * 0.05;
     ringRef.current.scale.set(scale, scale, 1);
     
-    // Rotation
+    // Rotation animation
     ringRef.current.rotation.z = time * 0.1;
+    
+    // SYNC POSITION WITH JUPITER - match the Float movement
+    // Jupiter's position: y = Math.sin(time * 0.5) * 0.3 - scrollY * 0.0005
+    const jupiterY = Math.sin(time * 0.5) * 0.3 - scrollY * 0.0005;
+    const jupiterX = Math.cos(time * 0.3) * 0.2;
+    ringRef.current.position.y = jupiterY;
+    ringRef.current.position.x = jupiterX;
     
     // Opacity based on scroll
     const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
@@ -419,8 +426,11 @@ const GravitationalLensing = ({ scrollY = 0 }) => {
     shaderMaterial.uniforms.uTime.value = state.clock.getElapsedTime();
   });
   
+  // Jupiter's rings are tilted ~3 degrees relative to Jupiter's equatorial plane
+  // rotation: [Math.PI / 2 (horizontal), 0, 0] = flat horizontal ring
+  // Adding slight tilt: x rotation of ~0.05 radians (~3 degrees)
   return (
-    <mesh ref={ringRef} position={[0, 0, 0.1]} rotation={[Math.PI / 2, 0, 0]}>
+    <mesh ref={ringRef} position={[0, 0, 0.1]} rotation={[Math.PI / 2 + 0.05, 0, 0]}>
       <ringGeometry args={[3.5, 4.5, 64]} />
       <primitive object={shaderMaterial} />
     </mesh>
