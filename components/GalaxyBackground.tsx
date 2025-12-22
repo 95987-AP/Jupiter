@@ -600,6 +600,9 @@ const Jupiter = ({ scrollY = 0 }) => {
   const lightRef = useRef<THREE.PointLight>(null);
   const groupRef = useRef<THREE.Group>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const mouseRef = useRef({ isDragging: false, lastX: 0, lastY: 0 });
+  const rotationVelocity = useRef({ x: 0, y: 0 });
+  const manualRotation = useRef({ x: 0, y: 0 });
 
   console.log('Jupiter: Component mounting, scrollY:', scrollY);
 
@@ -633,12 +636,19 @@ const Jupiter = ({ scrollY = 0 }) => {
       const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
       const scrollProgress = Math.min(Math.max(scrollY / maxScroll, 0), 1);
       
+      // Apply damping to rotation velocity
+      if (!mouseRef.current.isDragging) {
+        rotationVelocity.current.x *= 0.95;
+        rotationVelocity.current.y *= 0.95;
+        manualRotation.current.x += rotationVelocity.current.x;
+        manualRotation.current.y += rotationVelocity.current.y;
+      }
+      
       if (mesh.current) {
-          // Slow rotation like a gas giant (Jupiter day is ~10 hours)
-          mesh.current.rotation.y = time * 0.12;
-          
-          // Very subtle wobble for atmospheric dynamics
-          mesh.current.rotation.x = Math.sin(time * 0.3) * 0.015;
+          // Combine automatic and manual rotation
+          const autoRotation = time * 0.12;
+          mesh.current.rotation.y = autoRotation + manualRotation.current.y;
+          mesh.current.rotation.x = Math.sin(time * 0.3) * 0.015 + manualRotation.current.x;
           mesh.current.rotation.z = Math.cos(time * 0.4) * 0.015;
       }
       
@@ -692,7 +702,40 @@ const Jupiter = ({ scrollY = 0 }) => {
     <Float speed={2} rotationIntensity={0.2} floatIntensity={0.6}>
       <group ref={groupRef}>
         {/* Main Jupiter sphere */}
-        <mesh ref={mesh} castShadow>
+        <mesh 
+          ref={mesh} 
+          castShadow
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            mouseRef.current.isDragging = true;
+            mouseRef.current.lastX = e.clientX;
+            mouseRef.current.lastY = e.clientY;
+          }}
+          onPointerMove={(e) => {
+            if (mouseRef.current.isDragging) {
+              e.stopPropagation();
+              const deltaX = e.clientX - mouseRef.current.lastX;
+              const deltaY = e.clientY - mouseRef.current.lastY;
+              
+              // Update velocity for momentum
+              rotationVelocity.current.y = deltaX * 0.01;
+              rotationVelocity.current.x = deltaY * 0.01;
+              
+              // Apply rotation directly
+              manualRotation.current.y += deltaX * 0.01;
+              manualRotation.current.x += deltaY * 0.01;
+              
+              mouseRef.current.lastX = e.clientX;
+              mouseRef.current.lastY = e.clientY;
+            }
+          }}
+          onPointerUp={() => {
+            mouseRef.current.isDragging = false;
+          }}
+          onPointerLeave={() => {
+            mouseRef.current.isDragging = false;
+          }}
+        >
           <sphereGeometry args={[2.8, 128, 128]} />
           <meshStandardMaterial 
             map={texture}
@@ -1010,6 +1053,17 @@ const GalaxyBackground = () => {
           powerPreference: 'high-performance'
         }}
         dpr={[1, 2]}
+        style={{ cursor: 'grab' }}
+        onPointerDown={(e) => {
+          if (e.target instanceof HTMLCanvasElement) {
+            e.target.style.cursor = 'grabbing';
+          }
+        }}
+        onPointerUp={(e) => {
+          if (e.target instanceof HTMLCanvasElement) {
+            e.target.style.cursor = 'grab';
+          }
+        }}
       >
         <fog attach="fog" args={['#0B1929', 12, 55]} />
         
