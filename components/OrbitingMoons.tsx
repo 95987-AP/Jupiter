@@ -20,6 +20,7 @@ const OrbitingMoons: React.FC<OrbitingMoonsProps> = ({ scrollY = 0 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const moonRefs = useRef<Array<THREE.Mesh | null>>([]);
   const orbitLinesRef = useRef<Array<THREE.Line | null>>([]);
+  const smoothScrollY = useRef(scrollY);
 
   // Galilean moons data
   const moons = useMemo<Moon[]>(() => [
@@ -60,9 +61,12 @@ const OrbitingMoons: React.FC<OrbitingMoonsProps> = ({ scrollY = 0 }) => {
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     
-    // Calculate scroll progress
+    // Smooth scroll interpolation - animations run at constant speed regardless of scroll speed
+    smoothScrollY.current = THREE.MathUtils.lerp(smoothScrollY.current, scrollY, 0.08);
+    
+    // Calculate scroll progress with smooth value
     const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-    const scrollProgress = Math.min(scrollY / maxScroll, 1);
+    const scrollProgress = Math.min(smoothScrollY.current / maxScroll, 1);
     
     if (groupRef.current) {
       // Fade out moons as we zoom in to Jupiter
@@ -80,18 +84,18 @@ const OrbitingMoons: React.FC<OrbitingMoonsProps> = ({ scrollY = 0 }) => {
       });
     }
     
-    // Update moon positions
+    // Update moon positions - TIME-BASED, not scroll-based for smooth motion
     moonRefs.current.forEach((moonMesh, i) => {
       if (moonMesh && moons[i]) {
         const moon = moons[i];
         
-        // Update angle with varied speeds
-        moon.angle += moon.orbitSpeed * 0.012;
+        // TIME-BASED orbital motion - runs smoothly regardless of scroll
+        const orbitAngle = time * moon.orbitSpeed * 0.01;
         
         // Calculate position with elliptical orbit
         const eccentricity = 0.05 + i * 0.02; // Slight ellipse
-        const x = Math.cos(moon.angle + time * moon.orbitSpeed * 0.01) * moon.orbitRadius * (1 + eccentricity);
-        const z = Math.sin(moon.angle + time * moon.orbitSpeed * 0.01) * moon.orbitRadius * (1 - eccentricity);
+        const x = Math.cos(moon.angle + orbitAngle) * moon.orbitRadius * (1 + eccentricity);
+        const z = Math.sin(moon.angle + orbitAngle) * moon.orbitRadius * (1 - eccentricity);
         const y = Math.sin(time * 0.5 + i) * 0.3 + Math.cos(time * 0.3 + i * 2) * 0.1;
         
         moonMesh.position.set(x, y, z);

@@ -242,11 +242,17 @@ const GalileanMoonsSystem: React.FC<GalileanMoonsSystemProps> = ({
   moons,
 }) => {
   const groupRef = useRef<THREE.Group>(null);
+  const [smoothScrollY, setSmoothScrollY] = useState(scrollY);
+  
+  // Smooth scroll interpolation for fluid animations independent of scroll speed
+  useFrame(() => {
+    setSmoothScrollY(prev => THREE.MathUtils.lerp(prev, scrollY, 0.08));
+  });
 
-  // Calculate positions and opacities based on scroll
+  // Calculate positions and opacities based on SMOOTH scroll
   const moonStates = useMemo(() => {
     const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-    const scrollProgress = Math.min(Math.max(scrollY / maxScroll, 0), 1);
+    const scrollProgress = Math.min(Math.max(smoothScrollY / maxScroll, 0), 1);
     
     // Jupiter section ends at 30%, then moon sections
     const jupiterEnd = 0.30;
@@ -290,7 +296,7 @@ const GalileanMoonsSystem: React.FC<GalileanMoonsSystemProps> = ({
         isActive,
       };
     });
-  }, [currentMoonIndex, moons, scrollY]);
+  }, [currentMoonIndex, moons, smoothScrollY]);
 
   return (
     <group ref={groupRef}>
