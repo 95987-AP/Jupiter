@@ -356,9 +356,19 @@ const GravitationalLensing = ({ scrollY = 0 }) => {
     
     const time = state.clock.getElapsedTime();
     
-    // Pulsating effect
-    const scale = 1 + Math.sin(time * 2) * 0.05;
-    ringRef.current.scale.set(scale, scale, 1);
+    // Calculate scroll progress for scaling
+    const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+    const scrollProgress = Math.min(scrollY / maxScroll, 1);
+    
+    // SYNC SCALE WITH JUPITER - match Jupiter's scaling
+    // Jupiter scales from 1 to 1.5 based on scroll progress
+    const jupiterScale = THREE.MathUtils.lerp(1, 1.5, scrollProgress);
+    
+    // Pulsating effect on top of Jupiter's scale
+    const pulseEffect = 1 + Math.sin(time * 2) * 0.05;
+    const finalScale = jupiterScale * pulseEffect;
+    
+    ringRef.current.scale.set(finalScale, finalScale, 1);
     
     // Rotation animation
     ringRef.current.rotation.z = time * 0.1;
@@ -371,9 +381,6 @@ const GravitationalLensing = ({ scrollY = 0 }) => {
     ringRef.current.position.x = jupiterX;
     
     // Opacity based on scroll
-    const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-    const scrollProgress = Math.min(scrollY / maxScroll, 1);
-    
     if (ringRef.current.material instanceof THREE.ShaderMaterial) {
       ringRef.current.material.uniforms.uOpacity.value = 0.3 + scrollProgress * 0.3;
     }
