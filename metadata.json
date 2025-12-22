@@ -1,0 +1,5 @@
+{
+  "name": "Jupiter Experience",
+  "description": "A high-performance, interactive 3D exploration of the planet Jupiter using React, Three.js, and WebGL.",
+  "requestFramePermissions": []
+}
