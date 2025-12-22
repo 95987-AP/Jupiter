@@ -6,11 +6,11 @@ interface LoadingScreenProps {
 
 // List of all textures to preload
 const TEXTURES_TO_LOAD = [
-  '/textures/Moons/io-moon.jpg',
-  '/textures/Moons/europa-moon.jpg',
-  '/textures/Moons/ganymede-moon.jpg',
-  '/textures/Moons/callisto-moon.jpg',
-  '/textures/jupiter-texture.jpg', // Main Jupiter texture if exists
+  '/Jupiter/textures/Moons/io-moon.jpg',
+  '/Jupiter/textures/Moons/europa-moon.jpg',
+  '/Jupiter/textures/Moons/ganymede-moon.jpg',
+  '/Jupiter/textures/Moons/callisto-moon.jpg',
+  '/Jupiter/textures/jupiter-texture.jpg', // Main Jupiter texture if exists
 ];
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadComplete }) => {

@@ -611,7 +611,7 @@ const Jupiter = ({ scrollY = 0 }) => {
     console.log('Jupiter: Starting texture load...');
     const loader = new THREE.TextureLoader();
     loader.load(
-      '/textures/8k_jupiter.jpg',
+      '/Jupiter/textures/8k_jupiter.jpg',
       (loadedTexture) => {
         console.log('Jupiter: Texture loaded successfully!');
         loadedTexture.colorSpace = THREE.SRGBColorSpace;
@@ -799,7 +799,7 @@ const MilkyWaySkybox = ({ scrollY = 0 }) => {
   useEffect(() => {
     const loader = new THREE.TextureLoader();
     loader.load(
-      '/textures/2k_stars_milky_way.jpg',
+      '/Jupiter/textures/2k_stars_milky_way.jpg',
       (loadedTexture) => {
         loadedTexture.colorSpace = THREE.SRGBColorSpace;
         loadedTexture.mapping = THREE.EquirectangularReflectionMapping;

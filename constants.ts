@@ -39,7 +39,7 @@ export const JUPITER_MOONS: Moon[] = [
     radius: '1,821.6 km',
     distance: '421,700 km',
     imageColor: '#F4D03F', // Sulfur yellow
-    texture: '/textures/Moons/io-moon.jpg',
+    texture: '/Jupiter/textures/Moons/io-moon.jpg',
   },
   {
     id: 'europa',
@@ -48,7 +48,7 @@ export const JUPITER_MOONS: Moon[] = [
     radius: '1,560.8 km',
     distance: '671,100 km',
     imageColor: '#D6EAF8', // Ice blue
-    texture: '/textures/Moons/europa-moon.jpg',
+    texture: '/Jupiter/textures/Moons/europa-moon.jpg',
   },
   {
     id: 'ganymede',
@@ -57,7 +57,7 @@ export const JUPITER_MOONS: Moon[] = [
     radius: '2,634.1 km',
     distance: '1,070,400 km',
     imageColor: '#AAB7B8', // Rocky grey
-    texture: '/textures/Moons/ganymede-moon.jpg',
+    texture: '/Jupiter/textures/Moons/ganymede-moon.jpg',
   },
   {
     id: 'callisto',
@@ -66,7 +66,7 @@ export const JUPITER_MOONS: Moon[] = [
     radius: '2,410.3 km',
     distance: '1,882,700 km',
     imageColor: '#5D6D7E', // Dark cratered
-    texture: '/textures/Moons/callisto-moon.jpg',
+    texture: '/Jupiter/textures/Moons/callisto-moon.jpg',
   },
 ];
 

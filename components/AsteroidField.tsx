@@ -41,7 +41,7 @@ const AsteroidField: React.FC<AsteroidFieldProps> = ({ count = 60, scrollY = 0 }
     const loader = new THREE.TextureLoader();
     
     loader.load(
-      '/textures/immo-wegmann-uvKYxUxaAi4-unsplash.jpg',
+      '/Jupiter/textures/immo-wegmann-uvKYxUxaAi4-unsplash.jpg',
       (loadedTexture) => {
         loadedTexture.colorSpace = THREE.SRGBColorSpace;
         loadedTexture.wrapS = THREE.RepeatWrapping;
