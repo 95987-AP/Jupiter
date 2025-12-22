@@ -1,6 +1,3 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
 # Jupiter Experience - Interactive 3D Space Exploration
 
@@ -153,4 +150,4 @@ Optimized for modern browsers with WebGL support:
 
 Inspired by NASA's Jupiter missions and space visualization techniques.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1EfnvBx4x2_gj1xfwHqyxlHAQUL6dm6tL
+
