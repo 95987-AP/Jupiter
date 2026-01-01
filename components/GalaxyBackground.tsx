@@ -143,6 +143,7 @@ extend({ NebulaShaderMaterial });
 // ============================================
 const ShootingStars = ({ count = 15, scrollY = 0 }) => {
   const starsRef = useRef<THREE.Points>(null);
+  const materialRef = useRef<THREE.PointsMaterial>(null);
   const velocitiesRef = useRef<Float32Array>(new Float32Array(count * 3));
   const lifetimesRef = useRef<Float32Array>(new Float32Array(count));
   
@@ -176,12 +177,24 @@ const ShootingStars = ({ count = 15, scrollY = 0 }) => {
   }, [count]);
   
   useFrame((state) => {
-    if (!starsRef.current) return;
+    if (!starsRef.current || !materialRef.current) return;
     
     const time = state.clock.getElapsedTime();
+    const camera = state.camera;
     const positionsArray = starsRef.current.geometry.attributes.position.array as Float32Array;
     const velocities = velocitiesRef.current;
     const lifetimes = lifetimesRef.current;
+    
+    // Fade out when camera is close to Jupiter
+    const cameraDistance = camera.position.length();
+    const fadeStart = 15;
+    const fadeEnd = 8;
+    const distanceFade = THREE.MathUtils.clamp(
+      (cameraDistance - fadeEnd) / (fadeStart - fadeEnd),
+      0,
+      1
+    );
+    materialRef.current.opacity = 0.9 * distanceFade;
     
     for (let i = 0; i < count; i++) {
       // Update positions
@@ -220,6 +233,7 @@ const ShootingStars = ({ count = 15, scrollY = 0 }) => {
         />
       </bufferGeometry>
       <pointsMaterial
+        ref={materialRef}
         size={0.15}
         sizeAttenuation
         vertexColors
@@ -236,6 +250,7 @@ const ShootingStars = ({ count = 15, scrollY = 0 }) => {
 // ============================================
 const CosmicDust = ({ count = 3000, scrollY = 0 }) => {
   const dustRef = useRef<THREE.Points>(null);
+  const materialRef = useRef<THREE.PointsMaterial>(null);
   const initialPositions = useRef<Float32Array | null>(null);
   
   const { positions, colors, sizes } = useMemo(() => {
@@ -267,11 +282,24 @@ const CosmicDust = ({ count = 3000, scrollY = 0 }) => {
   }, [count]);
   
   useFrame((state) => {
-    if (!dustRef.current || !initialPositions.current) return;
+    if (!dustRef.current || !initialPositions.current || !materialRef.current) return;
     
     const time = state.clock.getElapsedTime();
+    const camera = state.camera;
     const positionsArray = dustRef.current.geometry.attributes.position.array as Float32Array;
     const initial = initialPositions.current;
+    
+    // Fade out when camera is close to Jupiter
+    const cameraDistance = camera.position.length();
+    const fadeStart = 12;
+    const fadeEnd = 6;
+    const distanceFade = THREE.MathUtils.clamp(
+      (cameraDistance - fadeEnd) / (fadeStart - fadeEnd),
+      0,
+      1
+    );
+    materialRef.current.opacity = 0.6 * distanceFade;
+    materialRef.current.size = 0.04 * THREE.MathUtils.clamp(cameraDistance / 10, 0.3, 1.0);
     
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
@@ -299,6 +327,7 @@ const CosmicDust = ({ count = 3000, scrollY = 0 }) => {
         <bufferAttribute attach="attributes-color" count={count} array={colors} itemSize={3} />
       </bufferGeometry>
       <pointsMaterial
+        ref={materialRef}
         size={0.04}
         sizeAttenuation
         vertexColors
@@ -525,6 +554,7 @@ const JupiterAurora = ({ scrollY = 0 }) => {
 // ============================================
 const GalaxyParticles = ({ count = 50000, scrollY = 0 }) => {
   const mesh = useRef<THREE.Points>(null);
+  const materialRef = useRef<THREE.PointsMaterial>(null);
   
   const { positions, colors, scales } = useMemo(() => {
     const positions = new Float32Array(count * 3);
@@ -566,8 +596,20 @@ const GalaxyParticles = ({ count = 50000, scrollY = 0 }) => {
   }, [count]);
 
   useFrame((state) => {
-    if (mesh.current) {
+    if (mesh.current && materialRef.current) {
       const time = state.clock.getElapsedTime();
+      const camera = state.camera;
+      
+      // Fade out when camera is close to Jupiter
+      const cameraDistance = camera.position.length();
+      const fadeStart = 15;
+      const fadeEnd = 8;
+      const distanceFade = THREE.MathUtils.clamp(
+        (cameraDistance - fadeEnd) / (fadeStart - fadeEnd),
+        0,
+        1
+      );
+      materialRef.current.opacity = 0.85 * distanceFade;
       
       // Smooth rotation with easing
       mesh.current.rotation.y = time * 0.03 + Math.sin(time * 0.1) * 0.02;
@@ -598,6 +640,7 @@ const GalaxyParticles = ({ count = 50000, scrollY = 0 }) => {
         />
       </bufferGeometry>
       <pointsMaterial
+        ref={materialRef}
         size={0.06}
         sizeAttenuation={true}
         depthWrite={false}

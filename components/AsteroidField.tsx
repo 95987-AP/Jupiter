@@ -233,6 +233,16 @@ const AsteroidField: React.FC<AsteroidFieldProps> = ({ count = 60, scrollY = 0 }
     const matrix = new THREE.Matrix4();
     const tempVec = new THREE.Vector3();
     
+    // Calculate camera distance to origin (Jupiter position) for fade effect
+    const cameraDistance = camera.position.length();
+    const fadeStart = 15;
+    const fadeEnd = 8;
+    const globalFade = THREE.MathUtils.clamp(
+      (cameraDistance - fadeEnd) / (fadeStart - fadeEnd),
+      0,
+      1
+    );
+    
     if (instancedMeshRef.current && asteroids.length > 0) {
       asteroids.forEach((asteroid, i) => {
         // Complex orbital motion with perturbations
@@ -285,11 +295,15 @@ const AsteroidField: React.FC<AsteroidFieldProps> = ({ count = 60, scrollY = 0 }
         // Update color based on distance to camera (atmospheric scattering simulation)
         const distanceToCamera = camera.position.distanceTo(asteroid.position);
         const color = new THREE.Color();
+        
+        // Apply global fade when camera is close to Jupiter
+        const brightnessWithFade = asteroid.brightness * globalFade;
+        
         if (distanceToCamera < 15) {
-          color.setHSL(0.08, 0.3, 0.4 * asteroid.brightness);
+          color.setHSL(0.08, 0.3, 0.4 * brightnessWithFade);
         } else {
           const fade = THREE.MathUtils.clamp((25 - distanceToCamera) / 10, 0, 1);
-          color.setHSL(0.08, 0.3 * fade, 0.4 * asteroid.brightness * fade);
+          color.setHSL(0.08, 0.3 * fade, 0.4 * brightnessWithFade * fade);
         }
         instancedMeshRef.current!.setColorAt(i, color);
       });
@@ -354,7 +368,7 @@ const AsteroidField: React.FC<AsteroidFieldProps> = ({ count = 60, scrollY = 0 }
           
           if (sprite.material instanceof THREE.SpriteMaterial) {
             sprite.material.opacity = behindCamera ? 0 : 
-              distanceFade * pulseFactor * flickerFactor * angleFade * brightnessFactor * 
+              distanceFade * pulseFactor * flickerFactor * angleFade * brightnessFactor * globalFade *
               (type === 0 ? 0.8 : type === 1 ? 0.6 : 0.4);
           }
           

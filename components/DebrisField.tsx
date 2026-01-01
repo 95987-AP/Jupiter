@@ -19,6 +19,7 @@ interface DebrisFieldProps {
 const DebrisField: React.FC<DebrisFieldProps> = ({ count = 500, scrollY = 0 }) => {
   const pointsRef = useRef<THREE.Points>(null);
   const particlesRef = useRef<THREE.BufferGeometry>(null);
+  const materialRef = useRef<THREE.PointsMaterial>(null);
 
   const particles = useMemo<DebrisParticle[]>(() => {
     const temp: DebrisParticle[] = [];
@@ -77,10 +78,31 @@ const DebrisField: React.FC<DebrisFieldProps> = ({ count = 500, scrollY = 0 }) =
   }, [particles]);
 
   useFrame((state) => {
-    if (!pointsRef.current || !particlesRef.current) return;
+    if (!pointsRef.current || !particlesRef.current || !materialRef.current) return;
     
     const time = state.clock.getElapsedTime();
     const positionAttribute = particlesRef.current.getAttribute('position');
+    const camera = state.camera;
+    
+    // Calculate camera distance to origin (Jupiter position)
+    const cameraDistance = camera.position.length();
+    
+    // Smooth fade based on camera zoom - fade out when closer than 15 units
+    const fadeStart = 15;
+    const fadeEnd = 8;
+    const distanceFade = THREE.MathUtils.clamp(
+      (cameraDistance - fadeEnd) / (fadeStart - fadeEnd),
+      0,
+      1
+    );
+    
+    // Apply fade to material opacity
+    materialRef.current.opacity = 0.8 * distanceFade;
+    
+    // Adjust size based on distance to prevent blocking
+    const baseSize = 0.05;
+    const sizeMultiplier = THREE.MathUtils.clamp(cameraDistance / 10, 0.3, 1.0);
+    materialRef.current.size = baseSize * sizeMultiplier;
     
     particles.forEach((particle, i) => {
       // Orbital motion
@@ -145,6 +167,7 @@ const DebrisField: React.FC<DebrisFieldProps> = ({ count = 500, scrollY = 0 }) =
         />
       </bufferGeometry>
       <pointsMaterial
+        ref={materialRef}
         size={0.05}
         sizeAttenuation
         vertexColors
