@@ -143,7 +143,7 @@ const InfoCards = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="facts" className="relative z-10 py-32 container mx-auto px-6 overflow-hidden">
+    <section ref={sectionRef} id="facts" className="relative z-10 py-32 container mx-auto px-6 overflow-hidden snap-start">
       <div ref={bgRef} className="absolute inset-0 opacity-10 pointer-events-none">
         <div 
           ref={(el) => orbsRef.current[0] = el}

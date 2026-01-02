@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { JUPITER_MOONS } from '../constants';
@@ -8,159 +8,141 @@ gsap.registerPlugin(ScrollTrigger);
 
 const MoonSections = () => {
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+  const [activeMoonIndex, setActiveMoonIndex] = useState<number>(-1);
+  const animationRefs = useRef<gsap.core.Timeline[]>([]);
 
+  // Track which section is currently active
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      sectionRefs.current.forEach((section, index) => {
-        if (!section) return;
-
-        const content = section.querySelector('.moon-content');
-        const title = section.querySelector('.moon-title');
-        const stats = section.querySelector('.moon-stats');
-        const moon3d = section.querySelector('.moon-3d-container');
-        const moonInner = section.querySelector('.moon-inner-wrapper');
-
-        // Parallax fade-in animation for content container
-        gsap.fromTo(content, 
-          {
-            opacity: 0,
-            y: 100,
-            scale: 0.9,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 90%',
-              end: 'top 40%',
-              scrub: 1.5,
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            const index = sectionRefs.current.indexOf(entry.target as HTMLElement);
+            if (index !== -1) {
+              setActiveMoonIndex(index);
             }
           }
-        );
+        });
+      },
+      {
+        threshold: [0.5, 0.75],
+        rootMargin: '-10% 0px -10% 0px'
+      }
+    );
 
-        // 3D Moon animation - SMOOTH fly-in from deep space
-        if (moon3d && moonInner) {
-          // Create a timeline for the moon approach
-          const moonTimeline = gsap.timeline({
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 100%', // Start earlier for more time
-              end: 'top 20%', // End later for longer animation
-              scrub: 2, // Slower scrub for smoother animation
-            }
-          });
-
-          // Phase 1: Start from very far away and tiny
-          moonTimeline.fromTo(moonInner,
-            { 
-              scale: 0.05,
-              opacity: 0,
-              rotateY: index % 2 === 0 ? -30 : 30,
-              z: -500,
-              filter: 'blur(10px)',
-            },
-            { 
-              scale: 0.3,
-              opacity: 0.4,
-              rotateY: index % 2 === 0 ? -15 : 15,
-              z: -250,
-              filter: 'blur(5px)',
-              duration: 0.4,
-              ease: 'power1.out',
-            }
-          );
-
-          // Phase 2: Continue approaching
-          moonTimeline.to(moonInner, {
-            scale: 0.6,
-            opacity: 0.7,
-            rotateY: index % 2 === 0 ? -5 : 5,
-            z: -100,
-            filter: 'blur(2px)',
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-
-          // Phase 3: Final approach - full size and clarity
-          moonTimeline.to(moonInner, {
-            scale: 1,
-            opacity: 1,
-            rotateY: 0,
-            z: 0,
-            filter: 'blur(0px)',
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-        }
-
-        // Title animation - slide in from side
-        gsap.fromTo(title,
-          { 
-            opacity: 0, 
-            x: index % 2 === 0 ? 80 : -80, 
-            filter: 'blur(15px)',
-            scale: 0.9,
-          },
-          {
-            opacity: 1,
-            x: 0,
-            filter: 'blur(0px)',
-            scale: 1,
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 75%',
-              end: 'top 35%',
-              scrub: 1.5,
-            }
-          }
-        );
-
-        // Stats stagger animation
-        if (stats) {
-          const statItems = stats.querySelectorAll('.stat-item');
-          gsap.fromTo(statItems,
-            { 
-              opacity: 0, 
-              y: 40,
-              scale: 0.9,
-            },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              stagger: 0.15,
-              scrollTrigger: {
-                trigger: section,
-                start: 'top 60%',
-                end: 'top 25%',
-                scrub: 1.5,
-              }
-            }
-          );
-        }
-
-        // Fade out on scroll past
-        gsap.fromTo(content,
-          { opacity: 1, y: 0 },
-          {
-            opacity: 0,
-            y: -80,
-            scale: 0.95,
-            scrollTrigger: {
-              trigger: section,
-              start: 'bottom 80%',
-              end: 'bottom 20%',
-              scrub: 1.5,
-            }
-          }
-        );
-      });
+    sectionRefs.current.forEach((section) => {
+      if (section) observer.observe(section);
     });
 
-    return () => ctx.revert();
+    return () => observer.disconnect();
   }, []);
+
+  // Trigger animation when moon becomes active
+  useEffect(() => {
+    if (activeMoonIndex === -1) return;
+
+    const section = sectionRefs.current[activeMoonIndex];
+    if (!section) return;
+
+    const moonInner = section.querySelector('.moon-inner-wrapper');
+    const title = section.querySelector('.moon-title');
+    const description = section.querySelector('.moon-description');
+    const stats = section.querySelector('.moon-stats');
+    const additionalInfo = section.querySelector('.additional-info');
+
+    // Clear any existing animation
+    if (animationRefs.current[activeMoonIndex]) {
+      animationRefs.current[activeMoonIndex].kill();
+    }
+
+    // Create new timeline for this moon - with performance optimizations
+    const tl = gsap.timeline({
+      defaults: {
+        force3D: true, // Enable GPU acceleration
+        ease: 'power2.out'
+      }
+    });
+    animationRefs.current[activeMoonIndex] = tl;
+
+    // Animate moon flying in from distance - NO rotation, just scale and position
+    if (moonInner) {
+      tl.fromTo(moonInner,
+        { 
+          scale: 0.1,
+          opacity: 0,
+          z: -500,
+        },
+        { 
+          scale: 1,
+          opacity: 1,
+          z: 0,
+          duration: 1.5,
+          ease: 'power3.out',
+        },
+        0
+      );
+    }
+
+    // Animate title
+    if (title) {
+      tl.fromTo(title,
+        { 
+          opacity: 0, 
+          x: activeMoonIndex % 2 === 0 ? 80 : -80,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.7,
+        },
+        0.2
+      );
+    }
+
+    // Animate description
+    if (description) {
+      tl.fromTo(description,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+        },
+        0.4
+      );
+    }
+
+    // Animate stats
+    if (stats) {
+      const statItems = stats.querySelectorAll('.stat-item');
+      tl.fromTo(statItems,
+        { opacity: 0, y: 15, scale: 0.95 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.4,
+          stagger: 0.08,
+          ease: 'back.out(1.5)',
+        },
+        0.6
+      );
+    }
+
+    // Animate additional info
+    if (additionalInfo) {
+      tl.fromTo(additionalInfo,
+        { opacity: 0, y: 15 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+        },
+        0.9
+      );
+    }
+
+  }, [activeMoonIndex]);
 
   const MOON_COLORS: Record<string, { primary: string; secondary: string; glow: string }> = {
     io: { primary: '#F4D03F', secondary: '#FF6B00', glow: 'rgba(244, 208, 63, 0.3)' },
@@ -171,19 +153,25 @@ const MoonSections = () => {
 
   return (
     <div className="relative">
-      {/* Jupiter intro section - spacer to sync with 3D camera */}
+      {/* Jupiter intro section */}
       <section 
-        className="min-h-[150vh] flex items-end justify-center relative pb-20"
+        className="min-h-screen snap-start snap-always flex items-center justify-center relative"
       >
-        <div className="text-center max-w-3xl mx-auto px-6 opacity-0 animate-fade-in-delayed">
+        <div className="text-center max-w-3xl mx-auto px-6 animate-fade-in">
           <span className="inline-block px-4 py-2 rounded-full text-xs uppercase tracking-widest 
                          bg-jupiter-orange/20 text-jupiter-orange border border-jupiter-orange/30 mb-6">
             Approaching Jovian System
           </span>
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-6 text-white">
+            The Galilean Moons
+          </h2>
           <p className="text-xl text-gray-300 leading-relaxed">
             Scroll to explore Jupiter's four largest moons - the Galilean satellites discovered in 1610.
             Each moon is a world unto itself, with unique geological features and mysteries.
           </p>
+          <div className="mt-8 text-gray-400 text-sm animate-bounce">
+            ↓ Scroll to explore ↓
+          </div>
         </div>
       </section>
 
@@ -195,21 +183,22 @@ const MoonSections = () => {
           <section
             key={moon.id}
             ref={el => { sectionRefs.current[index] = el; }}
-            className="min-h-screen flex items-center justify-center relative py-20"
+            className="min-h-screen snap-start snap-always flex items-center justify-center relative py-20"
           >
             {/* Ambient glow */}
             <div 
-              className="absolute inset-0 pointer-events-none"
+              className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
               style={{
                 background: `radial-gradient(ellipse at ${index % 2 === 0 ? '30%' : '70%'} 50%, 
-                            ${colors.glow}, transparent 50%)`
+                            ${colors.glow}, transparent 50%)`,
+                opacity: activeMoonIndex === index ? 1 : 0.3
               }}
             />
 
             <div className="moon-content max-w-6xl mx-auto px-6 w-full">
               <div className={`flex items-center gap-16 ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}>
                 {/* 3D Moon */}
-                <div className="flex-1 moon-3d-container relative" style={{ perspective: '1200px' }}>
+                <div className="flex-1 moon-3d-container relative" style={{ perspective: '1500px' }}>
                   <div className="moon-inner-wrapper relative" style={{ transformStyle: 'preserve-3d' }}>
                     <Moon3DInline 
                       texture={moon.texture || ''} 
@@ -282,7 +271,7 @@ const MoonSections = () => {
                   </div>
 
                   {/* Additional info based on moon */}
-                  <div className="stat-item text-gray-400 text-sm leading-relaxed pt-4 border-t border-white/10">
+                  <div className="additional-info text-gray-400 text-sm leading-relaxed pt-4 border-t border-white/10">
                     {moon.id === 'io' && (
                       <p>🌋 Over 400 active volcanoes make Io the most geologically active body in our solar system. Its surface is constantly being reshaped by volcanic eruptions.</p>
                     )}

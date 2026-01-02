@@ -110,7 +110,7 @@ const Timeline = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="science" className="relative z-10 py-32 container mx-auto px-6">
+    <section ref={sectionRef} id="science" className="relative z-10 py-32 container mx-auto px-6 snap-start">
       <div ref={headerRef} className="mb-20 text-center">
         <h2 
           ref={titleRef}

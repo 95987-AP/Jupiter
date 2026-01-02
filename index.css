@@ -41,9 +41,24 @@ h3 {
   letter-spacing: 0.05em;
 }
 
-/* Smooth Scrolling */
+/* Smooth Scrolling with Snap */
 html {
   scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+}
+
+body {
+  scroll-snap-type: y proximity;
+}
+
+/* Snap sections */
+.snap-start {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal; /* Changed from always - allows scrolling through */
+}
+
+.snap-always {
+  scroll-snap-stop: normal; /* Allows continuing scroll */
 }
 
 /* Custom Selection */

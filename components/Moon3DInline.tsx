@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useMemo, memo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -8,75 +8,13 @@ interface Moon3DInlineProps {
   moonName: string;
 }
 
-// Surface shader
-const surfaceVertexShader = `
-  varying vec2 vUv;
-  varying vec3 vNormal;
-  varying vec3 vPosition;
-  
-  void main() {
-    vUv = uv;
-    vNormal = normalize(normalMatrix * normal);
-    vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
+// Shared geometry to reduce memory
+const sphereGeometry = new THREE.SphereGeometry(1, 32, 32); // Reduced from 64x64
+const atmosphereGeometry = new THREE.SphereGeometry(1, 16, 16); // Reduced from 32x32
 
-const surfaceFragmentShader = `
-  uniform sampler2D uTexture;
-  uniform float uTime;
-  uniform vec3 uSunDirection;
-  uniform vec3 uAtmosphereColor;
-  
-  varying vec2 vUv;
-  varying vec3 vNormal;
-  varying vec3 vPosition;
-  
-  void main() {
-    vec4 textureColor = texture2D(uTexture, vUv);
-    
-    // Diffuse lighting
-    float diffuse = max(dot(vNormal, normalize(uSunDirection)), 0.0);
-    diffuse = diffuse * 0.8 + 0.2;
-    
-    // Fresnel rim lighting
-    vec3 viewDir = normalize(-vPosition);
-    float fresnel = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 3.0);
-    
-    vec3 finalColor = textureColor.rgb * diffuse;
-    finalColor += uAtmosphereColor * fresnel * 0.4;
-    
-    gl_FragColor = vec4(finalColor, 1.0);
-  }
-`;
+// Simplified - use standard materials instead of custom shaders for better performance
 
-// Atmosphere shader
-const atmosphereVertexShader = `
-  varying vec3 vNormal;
-  varying vec3 vPosition;
-  
-  void main() {
-    vNormal = normalize(normalMatrix * normal);
-    vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-
-const atmosphereFragmentShader = `
-  uniform vec3 uAtmosphereColor;
-  varying vec3 vNormal;
-  varying vec3 vPosition;
-  
-  void main() {
-    vec3 viewDir = normalize(-vPosition);
-    float intensity = pow(0.65 - dot(vNormal, viewDir), 2.0);
-    vec3 color = uAtmosphereColor * intensity * 0.8;
-    float alpha = intensity * 0.4;
-    gl_FragColor = vec4(color, alpha);
-  }
-`;
-
-const MoonSphere: React.FC<{ texture: string; atmosphereColor: string }> = ({ 
+const MoonSphere: React.FC<{ texture: string; atmosphereColor: string }> = memo(({ 
   texture, 
   atmosphereColor 
 }) => {
@@ -91,7 +29,10 @@ const MoonSphere: React.FC<{ texture: string; atmosphereColor: string }> = ({
       texture,
       (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
-        tex.anisotropy = 16;
+        tex.anisotropy = 4; // Reduced from 16 for performance
+        tex.minFilter = THREE.LinearMipmapLinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.generateMipmaps = true;
         setLoadedTexture(tex);
       },
       undefined,
@@ -99,76 +40,55 @@ const MoonSphere: React.FC<{ texture: string; atmosphereColor: string }> = ({
     );
   }, [texture]);
 
-  const surfaceMaterial = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        uTexture: { value: null },
-        uTime: { value: 0 },
-        uSunDirection: { value: new THREE.Vector3(1, 0.5, 1).normalize() },
-        uAtmosphereColor: { value: new THREE.Color(atmosphereColor) },
-      },
-      vertexShader: surfaceVertexShader,
-      fragmentShader: surfaceFragmentShader,
-    });
-  }, [atmosphereColor]);
-
-  const atmosphereMaterial = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        uAtmosphereColor: { value: new THREE.Color(atmosphereColor) },
-      },
-      vertexShader: atmosphereVertexShader,
-      fragmentShader: atmosphereFragmentShader,
-      transparent: true,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-  }, [atmosphereColor]);
-
-  useEffect(() => {
-    if (loadedTexture && surfaceMaterial) {
-      surfaceMaterial.uniforms.uTexture.value = loadedTexture;
-    }
-  }, [loadedTexture, surfaceMaterial]);
-
   useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-
     if (meshRef.current) {
-      meshRef.current.rotation.y = time * 0.1;
-      meshRef.current.rotation.x = Math.sin(time * 0.05) * 0.1;
-    }
-
-    if (surfaceMaterial) {
-      surfaceMaterial.uniforms.uTime.value = time;
+      // Smooth, constant rotation around Y axis only - like a real celestial body
+      const time = state.clock.getElapsedTime();
+      meshRef.current.rotation.y = time * 0.15; // Natural rotation speed
     }
   });
 
   if (!loadedTexture) {
     return (
       <mesh>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshStandardMaterial color={atmosphereColor} />
+        <primitive object={sphereGeometry} attach="geometry" />
+        <meshStandardMaterial color={atmosphereColor} roughness={0.8} metalness={0.1} />
       </mesh>
     );
   }
 
   return (
     <group>
+      {/* Main moon surface */}
       <mesh ref={meshRef}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <primitive object={surfaceMaterial} />
+        <primitive object={sphereGeometry} attach="geometry" />
+        <meshStandardMaterial 
+          map={loadedTexture}
+          roughness={0.85}
+          metalness={0.05}
+          emissive={atmosphereColor}
+          emissiveIntensity={0.08}
+        />
       </mesh>
-      <mesh scale={[1.08, 1.08, 1.08]}>
-        <sphereGeometry args={[1, 32, 32]} />
-        <primitive object={atmosphereMaterial} />
+      {/* Atmosphere glow - simplified */}
+      <mesh scale={[1.05, 1.05, 1.05]}>
+        <primitive object={atmosphereGeometry} attach="geometry" />
+        <meshBasicMaterial
+          color={atmosphereColor}
+          transparent
+          opacity={0.15}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
       </mesh>
     </group>
   );
-};
+});
 
-const Moon3DInline: React.FC<Moon3DInlineProps> = ({ 
+MoonSphere.displayName = 'MoonSphere';
+
+const Moon3DInline: React.FC<Moon3DInlineProps> = memo(({ 
   texture, 
   atmosphereColor,
   moonName 
@@ -178,21 +98,25 @@ const Moon3DInline: React.FC<Moon3DInlineProps> = ({
       <Canvas
         camera={{ position: [0, 0, 2.8], fov: 45 }}
         gl={{ 
-          antialias: true, 
+          antialias: false, // Disabled for performance
           alpha: true,
-          powerPreference: 'high-performance'
+          powerPreference: 'high-performance',
+          stencil: false,
+          depth: true,
         }}
-        dpr={[1, 2]}
+        dpr={Math.min(window.devicePixelRatio, 1.5)} // Cap at 1.5x
+        frameloop="always" // Continuous rendering for smooth rotation
         style={{ background: 'transparent' }}
       >
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[5, 3, 5]} intensity={1.5} color="#FFF8E7" />
-        <directionalLight position={[-3, 1, 2]} intensity={0.5} color={atmosphereColor} />
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[5, 3, 5]} intensity={1.2} color="#FFF8E7" />
         
         <MoonSphere texture={texture} atmosphereColor={atmosphereColor} />
       </Canvas>
     </div>
   );
-};
+});
+
+Moon3DInline.displayName = 'Moon3DInline';
 
 export default Moon3DInline;
