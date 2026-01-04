@@ -31,7 +31,7 @@ const createCloudTexture = (variant: number = 0): THREE.Texture => {
 // Dynamic atmospheric particles with wind/storm effects
 const AtmosphereParticles: React.FC<{ windIntensity: number }> = ({ windIntensity }) => {
   const pointsRef = useRef<THREE.Points>(null);
-  const particleCount = 25000;
+  const particleCount = 8000;
   
   const { geometry, material, velocities, bandIndices } = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -77,8 +77,8 @@ const AtmosphereParticles: React.FC<{ windIntensity: number }> = ({ windIntensit
       const colorVariation = 0.9 + Math.random() * 0.2;
       colors.push(color.r * colorVariation, color.g * colorVariation, color.b * colorVariation);
       
-      // Varying particle sizes - smaller for more wind-like appearance
-      sizes.push(8 + Math.random() * 15);
+      // Varying particle sizes - smaller for better text readability
+      sizes.push(4 + Math.random() * 8);
       
       // Velocity for wind effect (zonal winds flow horizontally)
       // Alternating directions in bands with more variation
@@ -95,13 +95,13 @@ const AtmosphereParticles: React.FC<{ windIntensity: number }> = ({ windIntensit
     geo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
     
     const mat = new THREE.PointsMaterial({
-      size: 20,
+      size: 15,
       vertexColors: true,
       map: createCloudTexture(0),
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.4,
     });
     
     return {
@@ -196,15 +196,15 @@ const JupiterSphere: React.FC<{ windIntensity: number }> = ({ windIntensity }) =
   });
   
   return (
-    <mesh ref={meshRef} position={[-1800, 0, -200]}>
-      <sphereGeometry args={[1500, 64, 64]} />
+    <mesh ref={meshRef} position={[-1980, 0, -220]}>
+      <sphereGeometry args={[1650, 64, 64]} />
       <meshBasicMaterial map={texture} />
       
       {/* Wind effect glow - intensity based on wind */}
       <pointLight
-        position={[-1800, 0, -200]}
+        position={[-1980, 0, -220]}
         intensity={0.5 + windIntensity * 2}
-        distance={3000}
+        distance={3300}
         color="#FF8C00"
       />
     </mesh>
@@ -214,8 +214,8 @@ const JupiterSphere: React.FC<{ windIntensity: number }> = ({ windIntensity }) =
 // Glow
 const Glow: React.FC = () => {
   return (
-    <mesh position={[-1800, 0, -200]}>
-      <sphereGeometry args={[1550, 32, 32]} />
+    <mesh position={[-1980, 0, -220]}>
+      <sphereGeometry args={[1705, 32, 32]} />
       <meshBasicMaterial 
         color="#FF6600" 
         transparent 

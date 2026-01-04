@@ -183,12 +183,12 @@ const Terrain = () => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null);
   
-  const worldWidth = 256;
-  const worldDepth = 256;
+  const worldWidth = 512;
+  const worldDepth = 512;
 
   const { geometry, heightData } = useMemo(() => {
     const data = generateHeight(worldWidth, worldDepth);
-    const geo = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
+    const geo = new THREE.PlaneGeometry(15000, 15000, worldWidth - 1, worldDepth - 1);
     geo.rotateX(-Math.PI / 2);
 
     const vertices = geo.attributes.position.array as Float32Array;
@@ -274,46 +274,178 @@ const AtmosphericParticles = () => {
 };
 
 // ============================================
-// CAMERA CONTROLLER WITH FLY-THROUGH
+// CAMERA CONTROLLER WITH MOUSE CONTROL
 // ============================================
 const CameraController = () => {
-  const { camera } = useThree();
-  const targetPos = useRef(new THREE.Vector3(100, 1200, -800));
-  const time = useRef(0);
-  const minHeight = 600; // Minimum camera height above terrain
+  const { camera, gl } = useThree();
+  const targetPos = useRef(new THREE.Vector3(0, 1000, 0));
+  const targetLookAt = useRef(new THREE.Vector3(0, 800, 0));
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const previousMouseRef = useRef({ x: 0, y: 0 });
+  const pitchRef = useRef(0); // Vertical rotation
+  const yawRef = useRef(0); // Horizontal rotation
+  const velocityRef = useRef(new THREE.Vector3());
+  const keysRef = useRef({ w: false, a: false, s: false, d: false, space: false, shift: false });
+  const timeRef = useRef(0);
+  
+  const terrainSize = 15000;
+  const minHeight = 600;
+  const maxHeight = 2000;
+  const moveSpeed = 800;
+  const lookSpeed = 0.002;
+  const autoMoveSpeed = 30; // Slow automatic movement speed
 
   useEffect(() => {
-    camera.position.set(100, 1200, -1200);
-    camera.lookAt(-100, 800, -800);
+    camera.position.set(0, 1000, 0);
+    camera.lookAt(0, 800, 500);
+    pitchRef.current = -0.3;
+    yawRef.current = 0;
   }, [camera]);
 
+  // Handle mouse movement for looking around
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (isDragging.current) {
+        const deltaX = e.clientX - previousMouseRef.current.x;
+        const deltaY = e.clientY - previousMouseRef.current.y;
+        
+        yawRef.current -= deltaX * lookSpeed;
+        pitchRef.current -= deltaY * lookSpeed;
+        
+        // Clamp pitch to prevent looking too far up or down
+        pitchRef.current = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, pitchRef.current));
+        
+        previousMouseRef.current = { x: e.clientX, y: e.clientY };
+      }
+    };
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button === 0) { // Left click
+        isDragging.current = true;
+        previousMouseRef.current = { x: e.clientX, y: e.clientY };
+      }
+    };
+
+    const onMouseUp = () => {
+      isDragging.current = false;
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, []);
+
+  // Handle keyboard input for movement
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      if (key in keysRef.current) {
+        keysRef.current[key as keyof typeof keysRef.current] = true;
+      }
+      if (e.code === 'Space') keysRef.current.space = true;
+      if (e.key === 'Shift') keysRef.current.shift = true;
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      if (key in keysRef.current) {
+        keysRef.current[key as keyof typeof keysRef.current] = false;
+      }
+      if (e.code === 'Space') keysRef.current.space = false;
+      if (e.key === 'Shift') keysRef.current.shift = false;
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
+
   useFrame((state, delta) => {
-    time.current += delta;
+    timeRef.current += delta;
     
-    // Slow flyover effect
-    const flySpeed = 15;
-    targetPos.current.z += flySpeed * delta;
-    targetPos.current.x += Math.sin(time.current * 0.1) * 2;
-    
-    // Ensure camera stays well above terrain - oscillate between safe heights
-    const baseHeight = 900;
-    const heightVariation = Math.sin(time.current * 0.05) * 200;
-    targetPos.current.y = Math.max(minHeight, baseHeight + heightVariation);
-    
-    // Smooth camera follow
-    camera.position.lerp(targetPos.current, 0.02);
-    
-    // Ensure final camera position is always above minimum
-    camera.position.y = Math.max(camera.position.y, minHeight);
-    
-    // Look ahead and slightly down but not too steep
-    const lookAt = new THREE.Vector3(
-      camera.position.x - 50 + Math.sin(time.current * 0.2) * 30,
-      Math.max(camera.position.y - 300, 200), // Don't look below certain height
-      camera.position.z + 600
+    // Calculate movement direction based on yaw
+    const forward = new THREE.Vector3(
+      Math.sin(yawRef.current),
+      0,
+      Math.cos(yawRef.current)
+    );
+    const right = new THREE.Vector3(
+      Math.cos(yawRef.current),
+      0,
+      -Math.sin(yawRef.current)
+    );
+
+    // Apply keyboard input to velocity
+    const acceleration = 50;
+    const friction = 0.92;
+
+    if (keysRef.current.w) {
+      velocityRef.current.add(forward.multiplyScalar(acceleration * delta));
+    }
+    if (keysRef.current.s) {
+      velocityRef.current.add(forward.multiplyScalar(-acceleration * delta));
+    }
+    if (keysRef.current.a) {
+      velocityRef.current.add(right.multiplyScalar(-acceleration * delta));
+    }
+    if (keysRef.current.d) {
+      velocityRef.current.add(right.multiplyScalar(acceleration * delta));
+    }
+    if (keysRef.current.space) {
+      velocityRef.current.y += acceleration * delta;
+    }
+    if (keysRef.current.shift) {
+      velocityRef.current.y -= acceleration * delta;
+    }
+
+    // Apply friction
+    velocityRef.current.multiplyScalar(friction);
+
+    // Add slow automatic movement if user isn't moving
+    const isUserMoving = keysRef.current.w || keysRef.current.a || keysRef.current.s || keysRef.current.d;
+    if (!isUserMoving && velocityRef.current.length() < 1) {
+      // Slow automatic forward movement
+      const autoMove = forward.clone().multiplyScalar(autoMoveSpeed * delta);
+      velocityRef.current.add(autoMove);
+      
+      // Subtle automatic camera sway
+      const swayAmount = 0.3;
+      targetPos.current.x += Math.sin(timeRef.current * 0.2) * swayAmount * delta;
+      targetPos.current.z += Math.cos(timeRef.current * 0.15) * swayAmount * delta;
+    }
+
+    // Update position
+    targetPos.current.add(velocityRef.current);
+
+    // Clamp position to terrain bounds
+    const halfSize = terrainSize / 2;
+    targetPos.current.x = Math.max(-halfSize, Math.min(halfSize, targetPos.current.x));
+    targetPos.current.z = Math.max(-halfSize, Math.min(halfSize, targetPos.current.z));
+    targetPos.current.y = Math.max(minHeight, Math.min(maxHeight, targetPos.current.y));
+
+    // Smooth camera movement
+    camera.position.lerp(targetPos.current, 0.1);
+
+    // Calculate look-at position based on pitch and yaw
+    const lookDirection = new THREE.Vector3(
+      Math.sin(yawRef.current) * Math.cos(pitchRef.current),
+      Math.sin(pitchRef.current),
+      Math.cos(yawRef.current) * Math.cos(pitchRef.current)
     );
     
-    camera.lookAt(lookAt);
+    targetLookAt.current.copy(camera.position).add(lookDirection);
+    camera.lookAt(targetLookAt.current);
   });
 
   return null;
@@ -346,7 +478,7 @@ const JupiterSurfaceTerrain: React.FC<JupiterSurfaceTerrainProps> = ({
           {/* 3D Canvas */}
           <div className="absolute inset-0">
             <Canvas
-              camera={{ fov: 60, near: 1, far: 20000 }}
+              camera={{ fov: 75, near: 1, far: 30000 }}
               gl={{ antialias: true }}
               dpr={[1, 1.5]}
             >
@@ -428,6 +560,15 @@ const JupiterSurfaceTerrain: React.FC<JupiterSurfaceTerrainProps> = ({
               <p className="text-base text-orange-300/70 mt-6 italic">
                 "If Jupiter were 80 times more massive, it would become a star."
               </p>
+              
+              <div className="bg-black/40 backdrop-blur-sm rounded-lg p-4 border border-orange-500/30 max-w-md mx-auto mt-6">
+                <h3 className="text-orange-400 font-semibold mb-2">Controls</h3>
+                <ul className="text-white/80 text-sm space-y-1">
+                  <li>• <span className="text-orange-300">WASD</span> - Move around</li>
+                  <li>• <span className="text-orange-300">Space/Shift</span> - Up/Down</li>
+                  <li>• <span className="text-orange-300">Left Click + Drag</span> - Look around</li>
+                </ul>
+              </div>
             </motion.div>
           </motion.div>
 
