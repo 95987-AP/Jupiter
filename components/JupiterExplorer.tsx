@@ -224,7 +224,7 @@ export const AtmosphereView: React.FC<{
               animate={{ scale: 1 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              ATMOSFERA JOWISZA
+              JUPITER'S ATMOSPHERE
             </motion.h1>
             
             <motion.div
@@ -234,16 +234,16 @@ export const AtmosphereView: React.FC<{
               transition={{ delay: 1, duration: 0.8 }}
             >
               <p className="text-xl md:text-2xl text-orange-100 leading-relaxed">
-                Wkraczasz w najgłębszą atmosferę Układu Słonecznego - 
-                <span className="text-orange-400 font-semibold"> 5000 km</span> wirujących chmur 
-                amoniaku, siarkowodoru i wody.
+                You're entering the deepest atmosphere in the Solar System - 
+                <span className="text-orange-400 font-semibold"> 5,000 km</span> of swirling clouds 
+                of ammonia, hydrogen sulfide, and water.
               </p>
               
               <p className="text-lg text-orange-200/80 leading-relaxed">
-                Wiatry osiągają tutaj prędkość <span className="text-cyan-300">620 km/h</span>, 
-                a błyskawice są <span className="text-yellow-300">tysiące razy</span> potężniejsze 
-                niż na Ziemi. Wielka Czerwona Plama - burza większa od naszej planety - 
-                szaleje tu już od <span className="text-red-400">400 lat</span>.
+                Winds here reach <span className="text-cyan-300">620 km/h</span>, 
+                and lightning is <span className="text-yellow-300">thousands of times</span> more powerful 
+                than on Earth. The Great Red Spot - a storm larger than our planet - 
+                has been raging here for <span className="text-red-400">400 years</span>.
               </p>
             </motion.div>
 
@@ -253,7 +253,7 @@ export const AtmosphereView: React.FC<{
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <span className="text-sm mb-2">Przewiń w dół, by zejść głębiej</span>
+              <span className="text-sm mb-2">Scroll down to go deeper</span>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
@@ -349,7 +349,7 @@ export const SurfaceView: React.FC<{
               animate={{ scale: 1 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              GŁĘBINY JOWISZA
+              JUPITER'S DEPTHS
             </motion.h1>
             
             <motion.div
@@ -359,20 +359,20 @@ export const SurfaceView: React.FC<{
               transition={{ delay: 1, duration: 0.8 }}
             >
               <p className="text-xl md:text-2xl text-orange-100 leading-relaxed">
-                Docierasz do miejsca, gdzie <span className="text-red-400 font-semibold">ciśnienie</span> jest 
-                miliony razy większe niż na Ziemi, a wodór staje się 
-                <span className="text-cyan-300 font-semibold"> metaliczny</span>.
+                You've reached a place where <span className="text-red-400 font-semibold">pressure</span> is 
+                millions of times greater than on Earth, and hydrogen becomes 
+                <span className="text-cyan-300 font-semibold"> metallic</span>.
               </p>
               
               <p className="text-lg text-orange-200/80 leading-relaxed">
-                Pod chmurami kryje się ocean <span className="text-blue-300">ciekłego wodoru</span> - 
-                największy w Układzie Słonecznym. Temperatura rośnie do 
-                <span className="text-yellow-400"> 20,000°C</span> w jądrze, gdzie prawdopodobnie 
-                znajduje się skaliste centrum <span className="text-purple-300">20 razy</span> masywniejsze od Ziemi.
+                Beneath the clouds lies an ocean of <span className="text-blue-300">liquid hydrogen</span> - 
+                the largest in the Solar System. Temperatures rise to 
+                <span className="text-yellow-400"> 20,000°C</span> in the core, where there is likely 
+                a rocky center <span className="text-purple-300">20 times</span> more massive than Earth.
               </p>
               
               <p className="text-base text-orange-300/70 mt-6 italic">
-                "Gdyby Jowisz był 80 razy masywniejszy, stałby się gwiazdą."
+                "If Jupiter were 80 times more massive, it would become a star."
               </p>
             </motion.div>
           </motion.div>
