@@ -45,6 +45,7 @@ h3 {
 html {
   scroll-behavior: smooth;
   scroll-snap-type: y proximity;
+  scroll-padding: 20px;
 }
 
 body {
@@ -54,11 +55,11 @@ body {
 /* Snap sections */
 .snap-start {
   scroll-snap-align: start;
-  scroll-snap-stop: normal; /* Changed from always - allows scrolling through */
+  scroll-snap-stop: normal;
 }
 
 .snap-always {
-  scroll-snap-stop: normal; /* Allows continuing scroll */
+  scroll-snap-stop: normal;
 }
 
 /* Custom Selection */

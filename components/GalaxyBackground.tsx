@@ -654,15 +654,19 @@ const GalaxyParticles = ({ count = 50000, scrollY = 0 }) => {
 };
 
 // Advanced Jupiter Sphere with Real Texture and Atmospheric Effects
-const Jupiter = ({ scrollY = 0 }) => {
+const Jupiter = ({ scrollY = 0, onClick, onHoverChange }: { scrollY?: number; onClick?: () => void; onHoverChange?: (hovered: boolean) => void }) => {
   const mesh = useRef<THREE.Mesh>(null);
-  const atmosphereRef = useRef<THREE.Mesh>(null);
-  const lightRef = useRef<THREE.PointLight>(null);
   const groupRef = useRef<THREE.Group>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
   const mouseRef = useRef({ isDragging: false, lastX: 0, lastY: 0 });
   const rotationVelocity = useRef({ x: 0, y: 0 });
   const manualRotation = useRef({ x: 0, y: 0 });
+
+  // Notify parent about hover state changes
+  useEffect(() => {
+    onHoverChange?.(isHovered);
+  }, [isHovered, onHoverChange]);
 
   console.log('Jupiter: Component mounting, scrollY:', scrollY);
 
@@ -721,23 +725,7 @@ const Jupiter = ({ scrollY = 0 }) => {
           const scaleValue = THREE.MathUtils.lerp(1, 1.5, scrollProgress);
           groupRef.current.scale.setScalar(scaleValue);
       }
-      
-      if (atmosphereRef.current) {
-          // Counter-rotate atmosphere for dynamic effect
-          atmosphereRef.current.rotation.y = -time * 0.05;
-          
-          // Atmosphere becomes more visible as we get closer
-          const baseOpacity = 0.15 + Math.sin(time) * 0.05;
-          if (atmosphereRef.current.material instanceof THREE.MeshBasicMaterial) {
-            atmosphereRef.current.material.opacity = baseOpacity * (1 + scrollProgress * 0.3);
-          }
-      }
-      
-      if (lightRef.current) {
-          // Pulsing glow effect - stronger when closer
-          const baseIntensity = 2.5 + Math.sin(time * 2) * 0.5;
-          lightRef.current.intensity = baseIntensity * (1 + scrollProgress * 0.4);
-      }
+
   });
 
   if (!texture) {
@@ -765,6 +753,18 @@ const Jupiter = ({ scrollY = 0 }) => {
         <mesh 
           ref={mesh} 
           castShadow
+          onClick={(e) => {
+            e.stopPropagation();
+            console.log('Jupiter CLICKED!');
+            if (onClick) {
+              onClick();
+            }
+          }}
+          onPointerEnter={() => setIsHovered(true)}
+          onPointerLeave={() => {
+            setIsHovered(false);
+            mouseRef.current.isDragging = false;
+          }}
           onPointerDown={(e) => {
             e.stopPropagation();
             mouseRef.current.isDragging = true;
@@ -792,9 +792,6 @@ const Jupiter = ({ scrollY = 0 }) => {
           onPointerUp={() => {
             mouseRef.current.isDragging = false;
           }}
-          onPointerLeave={() => {
-            mouseRef.current.isDragging = false;
-          }}
         >
           <sphereGeometry args={[2.8, 128, 128]} />
           <meshStandardMaterial 
@@ -806,46 +803,19 @@ const Jupiter = ({ scrollY = 0 }) => {
           />
         </mesh>
         
-        {/* Atmospheric glow layer */}
-        <mesh ref={atmosphereRef} scale={[1.08, 1.08, 1.08]}>
-          <sphereGeometry args={[2.8, 64, 64]} />
-          <meshBasicMaterial 
-            color="#FFB84D"
-            transparent
-            opacity={0.15}
-            side={THREE.BackSide}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-        
-        {/* Inner glow */}
-        <mesh scale={[1.02, 1.02, 1.02]}>
-          <sphereGeometry args={[2.8, 64, 64]} />
-          <meshBasicMaterial 
-            color="#FF8C42"
-            transparent
-            opacity={0.08}
-            side={THREE.BackSide}
-          />
-        </mesh>
-        
-        {/* Point light at center for volumetric glow */}
-        <pointLight 
-          ref={lightRef} 
-          position={[0, 0, 0]} 
-          intensity={2.5} 
-          color="#FFA726" 
-          distance={20} 
-          decay={2} 
-        />
-        
-        {/* Rim light to enhance edges */}
-        <pointLight 
-          position={[5, 5, 5]} 
-          intensity={1.5} 
-          color="#FFE082" 
-          distance={15} 
-        />
+        {/* Hover indicator glow - only shows when hovering */}
+        {isHovered && (
+          <mesh scale={[1.04, 1.04, 1.04]}>
+            <sphereGeometry args={[2.8, 32, 32]} />
+            <meshBasicMaterial 
+              color="#00D4FF"
+              transparent
+              opacity={0.2}
+              side={THREE.BackSide}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        )}
       </group>
     </Float>
   );
@@ -1056,9 +1026,10 @@ const CameraController = ({ scrollY = 0 }: { scrollY?: number }) => {
 };
 
 // Main Canvas Component
-const GalaxyBackground = () => {
+const GalaxyBackground = ({ onJupiterClick }: { onJupiterClick?: () => void }) => {
   const [scrollY, setScrollY] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isJupiterHovered, setIsJupiterHovered] = useState(false);
 
   console.log('GalaxyBackground: Component mounting...');
 
@@ -1113,15 +1084,15 @@ const GalaxyBackground = () => {
           powerPreference: 'high-performance'
         }}
         dpr={[1, 2]}
-        style={{ cursor: 'grab' }}
+        style={{ cursor: isJupiterHovered ? 'pointer' : 'grab' }}
         onPointerDown={(e) => {
-          if (e.target instanceof HTMLCanvasElement) {
+          if (e.target instanceof HTMLCanvasElement && !isJupiterHovered) {
             e.target.style.cursor = 'grabbing';
           }
         }}
         onPointerUp={(e) => {
           if (e.target instanceof HTMLCanvasElement) {
-            e.target.style.cursor = 'grab';
+            e.target.style.cursor = isJupiterHovered ? 'pointer' : 'grab';
           }
         }}
       >
@@ -1142,8 +1113,13 @@ const GalaxyBackground = () => {
         <MilkyWaySkybox scrollY={scrollY} />
         
         {/* Jupiter with new effects */}
-        <Jupiter scrollY={scrollY} />
-        <JupiterAurora scrollY={scrollY} />
+        <Jupiter 
+          scrollY={scrollY} 
+          onClick={onJupiterClick} 
+          onHoverChange={setIsJupiterHovered}
+        />
+        
+        {/* Jupiter's gravitational lensing ring */}
         <GravitationalLensing scrollY={scrollY} />
         
         {/* Decorative orbiting moons */}

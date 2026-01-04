@@ -6,6 +6,7 @@ import Moon3DInline from './Moon3DInline';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// MoonSections component with pointer-events-auto for interactivity
 const MoonSections = () => {
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   const [activeMoonIndex, setActiveMoonIndex] = useState<number>(-1);
@@ -152,10 +153,10 @@ const MoonSections = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative pointer-events-auto">
       {/* Jupiter intro section */}
       <section 
-        className="min-h-screen snap-start snap-always flex items-center justify-center relative"
+        className="min-h-screen snap-start flex items-center justify-center relative"
       >
         <div className="text-center max-w-3xl mx-auto px-6 animate-fade-in">
           <span className="inline-block px-4 py-2 rounded-full text-xs uppercase tracking-widest 
@@ -183,7 +184,7 @@ const MoonSections = () => {
           <section
             key={moon.id}
             ref={el => { sectionRefs.current[index] = el; }}
-            className="min-h-screen snap-start snap-always flex items-center justify-center relative py-20"
+            className="min-h-screen snap-start flex items-center justify-center relative py-20"
           >
             {/* Ambient glow */}
             <div 

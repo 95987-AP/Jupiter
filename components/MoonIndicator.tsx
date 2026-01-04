@@ -38,7 +38,7 @@ const MoonIndicator: React.FC = () => {
   const currentSectionIndex = getCurrentSection();
 
   return (
-    <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50 
+    <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50 pointer-events-auto
                     flex flex-col items-center gap-3">
       {sections.map((section, index) => {
         const isActive = index === currentSectionIndex;

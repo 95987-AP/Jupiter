@@ -175,7 +175,7 @@ const HeroSection = () => {
         ))}
       </div>
 
-      <div ref={contentRef} className="pointer-events-auto relative">
+      <div ref={contentRef} className="pointer-events-none relative">
         <span 
           ref={subtitleRef}
           className="text-jupiter-gold tracking-ultra-wide uppercase text-xs md:text-sm font-hero font-bold mb-6 block animate-pulse-slow"
@@ -195,15 +195,24 @@ const HeroSection = () => {
         
         <p 
           ref={descRef}
-          className="max-w-xl mx-auto text-jupiter-cream/90 text-base md:text-lg font-sans font-light leading-relaxed tracking-wide mb-12"
+          className="max-w-xl mx-auto text-white text-base md:text-lg font-sans font-medium leading-relaxed tracking-wide mb-8"
+          style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 140, 0, 0.3)' }}
         >
           Explore the king of planets. A gas giant with a mass one-thousandth that of the Sun, but two-and-a-half times that of all the other planets in the Solar System combined.
+        </p>
+        
+        {/* Click hint */}
+        <p 
+          className="text-cyan-300 text-base md:text-lg font-semibold tracking-wide mb-8 animate-pulse"
+          style={{ textShadow: '0 0 10px rgba(0, 255, 255, 0.8), 0 2px 8px rgba(0, 0, 0, 0.9)' }}
+        >
+          ✨ Click on Jupiter to dive into its atmosphere ✨
         </p>
         
         <a 
           ref={ctaRef}
           href="#facts"
-          className="group inline-block px-10 py-4 border-2 border-jupiter-orange text-jupiter-orange hover:bg-jupiter-orange hover:text-white transition-all duration-500 rounded-sm font-display font-semibold tracking-widest uppercase text-sm relative overflow-hidden"
+          className="pointer-events-auto group inline-block px-10 py-4 border-2 border-jupiter-orange text-jupiter-orange hover:bg-jupiter-orange hover:text-white transition-all duration-500 rounded-sm font-display font-semibold tracking-widest uppercase text-sm relative overflow-hidden"
           onMouseEnter={(e) => {
             gsap.to(e.currentTarget, { scale: 1.08, duration: 0.3, ease: 'back.out(1.7)' });
             gsap.to(e.currentTarget.querySelector('.btn-glow'), { opacity: 1, scale: 1.5, duration: 0.4 });
