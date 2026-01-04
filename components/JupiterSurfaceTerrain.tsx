@@ -403,7 +403,7 @@ const JupiterSurfaceTerrain: React.FC<JupiterSurfaceTerrainProps> = ({
               animate={{ scale: 1 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              GŁĘBINY JOWISZA
+              JUPITER'S DEPTHS
             </motion.h1>
             
             <motion.div
@@ -413,20 +413,20 @@ const JupiterSurfaceTerrain: React.FC<JupiterSurfaceTerrainProps> = ({
               transition={{ delay: 1, duration: 0.8 }}
             >
               <p className="text-xl md:text-2xl text-orange-100 leading-relaxed">
-                Docierasz do miejsca, gdzie <span className="text-red-400 font-semibold">ciśnienie</span> jest 
-                miliony razy większe niż na Ziemi, a wodór staje się 
-                <span className="text-cyan-300 font-semibold"> metaliczny</span>.
+                You reach a place where <span className="text-red-400 font-semibold">pressure</span> is
+                millions of times greater than on Earth, and hydrogen becomes
+                <span className="text-cyan-300 font-semibold">metallic</span>.
               </p>
               
               <p className="text-lg text-orange-200/80 leading-relaxed">
-                Pod chmurami kryje się ocean <span className="text-blue-300">ciekłego wodoru</span> - 
-                największy w Układzie Słonecznym. Temperatura rośnie do 
-                <span className="text-yellow-400"> 20,000°C</span> w jądrze, gdzie prawdopodobnie 
-                znajduje się skaliste centrum <span className="text-purple-300">20 razy</span> masywniejsze od Ziemi.
+                Beneath the clouds lies an ocean of <span className="text-blue-300">liquid hydrogen</span> -
+                the largest in the Solar System. Temperature rises to
+                <span className="text-yellow-400"> 20,000°C</span> in the core, where there is likely a rocky center
+                <span className="text-purple-300">20 times</span> more massive than Earth.
               </p>
               
               <p className="text-base text-orange-300/70 mt-6 italic">
-                "Gdyby Jowisz był 80 razy masywniejszy, stałby się gwiazdą."
+                "If Jupiter were 80 times more massive, it would become a star."
               </p>
             </motion.div>
           </motion.div>
